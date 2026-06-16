@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>se.fk.maven</groupId>
+    <artifactId>fk-maven-quarkus-parent</artifactId>
+    <version>1.12.0</version>
+  </parent>
+
+  <groupId>se.fk.github.rimfrost</groupId>
+  <artifactId>rimfrost-service-workflow</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+
+  <properties>
+    <violations.maxViolations>0</violations.maxViolations>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-messaging-kafka</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-health</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.smallrye.reactive</groupId>
+      <artifactId>smallrye-reactive-messaging-in-memory</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>se.fk.github.jaxrsclientfactory</groupId>
+      <artifactId>jaxrs-client-factory</artifactId>
+      <version>1.3.0</version>
+    </dependency>
+    <dependency>
+      <groupId>se.fk.rimfrost</groupId>
+      <artifactId>rimfrost-service-handlaggning-openapi-jaxrs-spec</artifactId>
+      <version>2.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>se.fk.rimfrost</groupId>
+      <artifactId>rimfrost-service-handlaggning-asyncapi</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>se.fk.rimfrost</groupId>
+      <artifactId>rimfrost-process-asyncapi</artifactId>
+      <version>1.2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>se.fk.rimfrost.framework.erbjudande.topic</groupId>
+      <artifactId>rimfrost-framework-erbjudande-topic-adapter</artifactId>
+      <version>0.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>io.github.classgraph</groupId>
+      <artifactId>classgraph</artifactId>
+      <version>4.8.184</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock</artifactId>
+      <version>3.13.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>central</id>
+      <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+    <repository>
+      <id>github--Forsakringskassan--repository</id>
+      <url>https://maven.pkg.github.com/Forsakringskassan/repository</url>
+    </repository>
+  </repositories>
+</project>
