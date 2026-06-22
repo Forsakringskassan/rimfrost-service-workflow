@@ -11,6 +11,7 @@ import se.fk.github.rimfrost.workflow.logic.dto.ImmutableYrkandeDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.IndividYrkandeRollDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ProduceratResultatDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.YrkandeDTO;
+import se.fk.rimfrost.framework.handlaggning.model.Handlaggning;
 import se.fk.rimfrost.framework.handlaggning.model.HandlaggningUpdate;
 import se.fk.rimfrost.framework.handlaggning.model.Idtyp;
 import se.fk.rimfrost.framework.handlaggning.model.ImmutableIdtyp;
@@ -22,6 +23,25 @@ import se.fk.rimfrost.framework.handlaggning.model.Yrkande;
 @ApplicationScoped
 public class LogicMapper
 {
+   /**
+    * Maps a {@link Handlaggning} read from the handlaggning adapter to {@link HandlaggningDTO}.
+    */
+   public HandlaggningDTO toHandlaggningDTO(Handlaggning handlaggning)
+   {
+      return ImmutableHandlaggningDTO.builder()
+            .id(handlaggning.id())
+            .yrkande(toYrkandeDTO(handlaggning.yrkande()))
+            .version(handlaggning.version())
+            .processinstansId(handlaggning.processInstansId())
+            .handlaggningspecifikationId(handlaggning.handlaggningspecifikationId())
+            .skapadTS(handlaggning.skapadTS())
+            .avslutadTS(handlaggning.avslutadTS())
+            .build();
+   }
+
+   /**
+    * Maps a {@link HandlaggningUpdate} to {@link HandlaggningDTO}.
+    */
    public HandlaggningDTO toHandlaggningDTO(HandlaggningUpdate handlaggningUpdate)
    {
       return ImmutableHandlaggningDTO.builder()

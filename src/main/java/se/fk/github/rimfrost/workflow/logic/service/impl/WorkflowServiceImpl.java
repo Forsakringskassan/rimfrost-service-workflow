@@ -1,9 +1,9 @@
 package se.fk.github.rimfrost.workflow.logic.service.impl;
 
+import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
@@ -16,7 +16,10 @@ import se.fk.github.rimfrost.workflow.logic.dto.ImmutableYrkandeCreateResponse;
 import se.fk.github.rimfrost.workflow.logic.dto.ProduceratResultatCreateRequest;
 import se.fk.github.rimfrost.workflow.logic.dto.YrkandeCreateRequest;
 import se.fk.github.rimfrost.workflow.logic.dto.YrkandeCreateResponse;
+import se.fk.github.rimfrost.workflow.logic.dto.HandlaggningDTO;
 import se.fk.github.rimfrost.workflow.logic.exception.ErbjudandeTopicReadException;
+import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningAdapterException;
+import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningNotFoundException;
 import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningProcessStartException;
 import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningReplyTopicReadException;
 import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningReplyTopicWriteException;
@@ -28,6 +31,7 @@ import se.fk.rimfrost.framework.erbjudande.topic.adapter.ErbjudandeTopicAdapter;
 import se.fk.rimfrost.framework.erbjudande.topic.exception.ErbjudandeTopicException;
 import se.fk.rimfrost.framework.handlaggning.adapter.HandlaggningAdapter;
 import se.fk.rimfrost.framework.handlaggning.exception.HandlaggningException;
+import se.fk.rimfrost.framework.handlaggning.model.Handlaggning;
 import se.fk.rimfrost.framework.handlaggning.model.HandlaggningUpdate;
 import se.fk.rimfrost.framework.handlaggning.model.ImmutableHandlaggningUpdate;
 import se.fk.rimfrost.framework.handlaggning.model.ImmutableProduceratResultat;
@@ -95,6 +99,46 @@ public class WorkflowServiceImpl implements WorkflowService
       return ImmutableYrkandeCreateResponse.builder()
             .handlaggning(mapper.toHandlaggningDTO(handlaggningUpdate))
             .build();
+   }
+
+   @Override
+   public HandlaggningDTO restartProcess(UUID handlaggningId, @Nullable String replyTo)
+   {
+      var handlaggning = fetchHandlaggning(handlaggningId);
+
+      if (replyTo != null)
+      {
+         storeHandlaggningReplyTopic(handlaggningId, replyTo);
+      }
+
+      var erbjudandeTopic = getErbjudandeTopic(handlaggning.yrkande().erbjudandeId());
+
+      try
+      {
+         startHandlaggningProcess(erbjudandeTopic, handlaggningId);
+      }
+      catch (HandlaggningProcessStartException e)
+      {
+         LOGGER.error("Failed to start process for handlaggning id: {}", handlaggningId, e);
+      }
+
+      return mapper.toHandlaggningDTO(handlaggning);
+   }
+
+   private Handlaggning fetchHandlaggning(UUID handlaggningId)
+   {
+      try
+      {
+         return handlaggningAdapter.readHandlaggning(handlaggningId);
+      }
+      catch (HandlaggningException e)
+      {
+         if (e.getErrorType() == HandlaggningException.ErrorType.NOT_FOUND)
+         {
+            throw new HandlaggningNotFoundException(e);
+         }
+         throw new HandlaggningAdapterException(e);
+      }
    }
 
    @Override

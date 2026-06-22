@@ -27,6 +27,7 @@ import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.Beslu
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.Handlaggning;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.Idtyp;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.IndividYrkandeRoll;
+import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.PostHandlaggningProcessResponse;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.PostYrkandeRequest;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.PostYrkandeResponse;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.ProduceratResultat;
@@ -67,6 +68,16 @@ public class PresentationMapper
             .individYrkandeRoller(individYrkandeRoller)
             .produceradeResultat(produceradeResultat)
             .build();
+   }
+
+   /**
+    * Maps a {@link HandlaggningDTO} to a {@link PostHandlaggningProcessResponse}.
+    */
+   public PostHandlaggningProcessResponse toPostHandlaggningProcessResponse(HandlaggningDTO handlaggningDTO)
+   {
+      PostHandlaggningProcessResponse response = new PostHandlaggningProcessResponse();
+      response.setHandlaggning(toHandlaggning(handlaggningDTO));
+      return response;
    }
 
    public PostYrkandeResponse toPostYrkandeResponse(YrkandeCreateResponse yrkandeCreateResponse)
