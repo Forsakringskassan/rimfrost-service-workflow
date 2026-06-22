@@ -2,6 +2,12 @@
 
 Changelog of rimfrost-service-workflow.
 
+## 0.1.0 (2026-06-22)
+
+### Features
+
+-  Add initial version of rimfrost-service-workflow ([b74ce](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/b74ce30045dfe20) Lars Persson)  
+
 ## 0.0.1 (2026-06-16)
 
 ### Bug Fixes
