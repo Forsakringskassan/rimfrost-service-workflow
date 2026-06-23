@@ -7,20 +7,23 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ext.Providers;
+import java.util.UUID;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import se.fk.github.rimfrost.workflow.integration.KafkaProducer;
 import se.fk.github.rimfrost.workflow.logic.exception.ErbjudandeTopicReadException;
+import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningAdapterException;
+import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningNotFoundException;
 import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningProcessStartException;
 import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningReplyTopicReadException;
 import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningReplyTopicWriteException;
 import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningUpdateException;
 import se.fk.github.rimfrost.workflow.logic.service.WorkflowService;
 import se.fk.github.rimfrost.workflow.storage.WorkflowDataStorage;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -67,6 +70,7 @@ public class WorkflowServiceTest extends WorkflowTestBase
    String produceratResultatStatusId;
 
    @Test
+   @DisplayName("Erbjudande-topic-fel ger ErbjudandeTopicReadException vid skapande av yrkande")
    void should_throw_erbjudande_topic_read_exception_on_erbjudande_topic_read_failure_during_create_yrkande()
    {
       wireMockServer.stubFor(WireMock.get(WireMock.urlPathMatching("/topic/.+"))
@@ -75,6 +79,7 @@ public class WorkflowServiceTest extends WorkflowTestBase
    }
 
    @Test
+   @DisplayName("Lagringsfel av replyTo-topic ger HandlaggningReplyTopicWriteException vid skapande av yrkande")
    void should_throw_handlaggning_reply_topic_write_exception_on_storage_write_failure_during_create_yrkande()
    {
       var request = createYrkandeCreateRequest();
@@ -84,6 +89,7 @@ public class WorkflowServiceTest extends WorkflowTestBase
    }
 
    @Test
+   @DisplayName("Handläggning update-fel ger HandlaggningUpdateException och rensar lagrad replyTo-topic")
    void should_throw_handlaggning_update_exception_on_handlaggning_update_failure_during_create_yrkande()
    {
       var request = createYrkandeCreateRequest();
@@ -95,6 +101,7 @@ public class WorkflowServiceTest extends WorkflowTestBase
    }
 
    @Test
+   @DisplayName("Handläggning update-fel ger HandlaggningUpdateException även om borttagning av replyTo-topic misslyckas")
    void should_throw_handlaggning_update_exception_on_handlaggning_update_failure_with_storage_delete_failure_during_create_yrkande()
    {
       var request = createYrkandeCreateRequest();
@@ -107,6 +114,7 @@ public class WorkflowServiceTest extends WorkflowTestBase
    }
 
    @Test
+   @DisplayName("Process-startsfel loggas och yrkande-svar returneras ändå vid skapande av yrkande")
    void should_return_yrkande_create_response_on_handlaggning_process_start_failure_during_create_yrkande()
    {
       var request = createYrkandeCreateRequest();
@@ -118,6 +126,7 @@ public class WorkflowServiceTest extends WorkflowTestBase
    }
 
    @Test
+   @DisplayName("Yrkande skapas framgångsrikt och handläggning returneras med korrekt data")
    void should_return_yrkande_create_response_on_create_yrkande()
    {
       var request = createYrkandeCreateRequest();
@@ -174,6 +183,7 @@ public class WorkflowServiceTest extends WorkflowTestBase
    }
 
    @Test
+   @DisplayName("Läsfel av replyTo-topic avbryter notifieringsflödet utan att radera replyTo-topicen")
    void should_not_delete_handlaggning_reply_topic_on_handlaggning_reply_topic_read_failure_during_handlaggning_response()
    {
       var handlaggningResponse = createHandlaggningResponseDTO();
@@ -187,6 +197,7 @@ public class WorkflowServiceTest extends WorkflowTestBase
    }
 
    @Test
+   @DisplayName("Send error av avslutningsmeddelande avbryter flödet utan att radera replyTo-topic")
    void should_not_delete_handlaggning_reply_topic_on_handlaggning_done_msg_send_failure_during_handlaggning_response()
    {
       var handlaggningResponse = createHandlaggningResponseDTO();
@@ -203,6 +214,7 @@ public class WorkflowServiceTest extends WorkflowTestBase
    }
 
    @Test
+   @DisplayName("replyTo-topic raderas efter framgångsrikt skickande av avslutningsmeddelande")
    void should_delete_handlaggning_reply_topic_on_handlaggning_response()
    {
       var handlaggningResponse = createHandlaggningResponseDTO();
@@ -218,6 +230,7 @@ public class WorkflowServiceTest extends WorkflowTestBase
    }
 
    @Test
+   @DisplayName("Borttagningsfel av replyTo-topic loggas utan att krascha avslutningsflödet")
    void should_not_crash_exception_on_delete_handlaggning_reply_topic_exception_during_handlaggning_response()
    {
       var handlaggningResponse = createHandlaggningResponseDTO();
@@ -232,5 +245,74 @@ public class WorkflowServiceTest extends WorkflowTestBase
             eq(replyTopic));
       Mockito.verify(workflowDataStorage, Mockito.times(1))
             .deleteHandlaggningReplyTopic(eq(handlaggningResponse.handlaggningId()));
+   }
+
+   @Test
+   @DisplayName("FKPOC-869-AC2: Handläggning not-found ger HandlaggningNotFoundException")
+   void should_throw_handlaggning_not_found_exception_on_not_found_during_restart_process()
+   {
+      wireMockServer.stubFor(WireMock.get(WireMock.urlPathMatching("/handlaggning/.+"))
+            .willReturn(WireMock.aResponse().withStatus(404)));
+      var handlaggningId = UUID.randomUUID();
+      assertThrows(HandlaggningNotFoundException.class, () -> workflowService.restartProcess(handlaggningId, null));
+   }
+
+   @Test
+   @DisplayName("Adapter-fel (ej 404) vid hämtning av handläggning ger HandlaggningAdapterException")
+   void should_throw_handlaggning_adapter_exception_on_non_not_found_error_during_restart_process()
+   {
+      wireMockServer.stubFor(WireMock.get(WireMock.urlPathMatching("/handlaggning/.+"))
+            .willReturn(WireMock.aResponse().withStatus(500)));
+      var handlaggningId = UUID.randomUUID();
+      assertThrows(HandlaggningAdapterException.class, () -> workflowService.restartProcess(handlaggningId, null));
+   }
+
+   @Test
+   @DisplayName("FKPOC-869-AC3: replyTo-topic lagras när replyTo är angivet")
+   void should_store_reply_topic_when_reply_to_is_present_during_restart_process()
+   {
+      var handlaggningId = UUID.randomUUID();
+      var replyTo = "my-replyTo-topic";
+      workflowService.restartProcess(handlaggningId, replyTo);
+      Mockito.verify(workflowDataStorage, Mockito.times(1)).storeHandlaggningReplyTopic(eq(handlaggningId), eq(replyTo));
+   }
+
+   @Test
+   @DisplayName("FKPOC-869-AC3: replyTo-topic lagras inte när replyTo saknas")
+   void should_not_store_reply_topic_when_reply_to_is_absent_during_restart_process()
+   {
+      var handlaggningId = UUID.randomUUID();
+      workflowService.restartProcess(handlaggningId, null);
+      Mockito.verify(workflowDataStorage, Mockito.never()).storeHandlaggningReplyTopic(Mockito.any(), Mockito.any());
+   }
+
+   @Test
+   @DisplayName("FKPOC-869-AC4: Kafka-processmeddelande skickas till Erbjudande-topicen med handlaggningId")
+   void should_send_request_message_with_erbjudande_topic_and_handlaggning_id_during_restart_process()
+   {
+      var handlaggningId = UUID.randomUUID();
+      workflowService.restartProcess(handlaggningId, null);
+      Mockito.verify(kafkaProducer, Mockito.times(1)).sendRequestMessage(eq("test"), eq(handlaggningId));
+   }
+
+   @Test
+   @DisplayName("FKPOC-869-AC5: Kafka-fel vid processstart ger HandlaggningProcessStartException")
+   void should_throw_handlaggning_process_start_exception_when_send_request_message_fails_during_restart_process()
+   {
+      var handlaggningId = UUID.randomUUID();
+      Mockito.doThrow(new IllegalStateException()).when(kafkaProducer).sendRequestMessage(Mockito.any(), Mockito.any());
+      assertThrows(HandlaggningProcessStartException.class, () -> workflowService.restartProcess(handlaggningId, null));
+   }
+
+   @Test
+   @DisplayName("FKPOC-869-AC6: Lagringsfel av replyTo ger HandlaggningReplyTopicWriteException")
+   void should_throw_handlaggning_reply_topic_write_exception_on_storage_write_failure_during_restart_process()
+   {
+      var handlaggningId = UUID.randomUUID();
+      var replyTo = "my-replyTo-topic";
+      Mockito.doThrow(new IllegalStateException()).when(workflowDataStorage)
+            .storeHandlaggningReplyTopic(eq(handlaggningId), eq(replyTo));
+      assertThrows(HandlaggningReplyTopicWriteException.class,
+            () -> workflowService.restartProcess(handlaggningId, replyTo));
    }
 }

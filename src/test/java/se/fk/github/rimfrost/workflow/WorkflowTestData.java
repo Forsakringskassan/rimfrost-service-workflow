@@ -1,14 +1,17 @@
 package se.fk.github.rimfrost.workflow;
 
+import se.fk.github.rimfrost.workflow.logic.dto.HandlaggningDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.HandlaggningErrorInfoDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.HandlaggningResponseDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.IdtypDTO;
+import se.fk.github.rimfrost.workflow.logic.dto.ImmutableHandlaggningDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableHandlaggningErrorInfoDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableHandlaggningResponseDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableIdtypDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableIndividYrkandeRollDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableProduceratResultatCreateRequest;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableYrkandeCreateRequest;
+import se.fk.github.rimfrost.workflow.logic.dto.ImmutableYrkandeDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.IndividYrkandeRollDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ProduceratResultatCreateRequest;
 import se.fk.github.rimfrost.workflow.logic.dto.YrkandeCreateRequest;
@@ -19,7 +22,6 @@ import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.Idtyp
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.IndividYrkandeRoll;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.PostYrkandeRequest;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.ProduceratResultat;
-
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -85,6 +87,26 @@ public class WorkflowTestData
       request.setIndividYrkandeRoller(List.of(individYrkandeRoll));
       request.setProduceradeResultat(List.of(produceratResultat));
       return request;
+   }
+
+   public static HandlaggningDTO createHandlaggningDTO()
+   {
+      return ImmutableHandlaggningDTO.builder()
+            .id(UUID.randomUUID())
+            .yrkande(ImmutableYrkandeDTO.builder()
+                  .id(UUID.randomUUID())
+                  .erbjudandeId(UUID.randomUUID().toString())
+                  .version(1)
+                  .yrkandedatum(OffsetDateTime.now())
+                  .yrkandeFrom(OffsetDateTime.now())
+                  .yrkandeTom(OffsetDateTime.now())
+                  .yrkandestatus("YRKAT")
+                  .avsikt("NY")
+                  .build())
+            .version(1)
+            .handlaggningspecifikationId(UUID.randomUUID())
+            .skapadTS(OffsetDateTime.now())
+            .build();
    }
 
    public static HandlaggningResponseDTO createHandlaggningResponseDTO()
