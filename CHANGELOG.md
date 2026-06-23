@@ -2,6 +2,12 @@
 
 Changelog of rimfrost-service-workflow.
 
+## 0.1.1 (2026-06-23)
+
+### Bug Fixes
+
+-  Set missing id attribute on handlaggning request kafka message ([ffc2e](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/ffc2eb18e228185) Lars Persson)  
+
 ## 0.1.0 (2026-06-22)
 
 ### Features
