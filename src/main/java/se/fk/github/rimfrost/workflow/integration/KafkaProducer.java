@@ -23,6 +23,7 @@ public class KafkaProducer
       data.setHandlaggningId(handlaggningId.toString());
 
       var payload = new HandlaggningRequestMessagePayload();
+      payload.setId(UUID.randomUUID().toString());
       payload.setType(topic);
       payload.setSource("/service/workflow");
       payload.setTime(OffsetDateTime.now());
