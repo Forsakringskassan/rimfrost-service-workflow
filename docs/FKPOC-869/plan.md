@@ -18,7 +18,7 @@ This ticket implements that endpoint in `rimfrost-service-workflow`.
 | `FKPOC-869-AC2` | `POST /handlaggning/{handlaggningId}/process` returns 404 when no handläggning exists for the given `handlaggningId` |
 | `FKPOC-869-AC3` | `POST /handlaggning/{handlaggningId}/process` persists the `replyTo` topic only when `replyTo` is present in the request body, replacing any previously stored value for the same `handlaggningId`; when absent, the existing stored value is retained |
 | `FKPOC-869-AC4` | `POST /handlaggning/{handlaggningId}/process` sends a Kafka request message to the erbjudande topic derived from the handläggning's `erbjudandeId`, with the `handlaggningId` as payload |
-| `FKPOC-869-AC5` | `POST /handlaggning/{handlaggningId}/process` returns 200 with the `Handlaggning` body even when the Kafka process-start message fails to send |
+| `FKPOC-869-AC5` | `POST /handlaggning/{handlaggningId}/process` returns 500 when the Kafka process-start message fails to send |
 | `FKPOC-869-AC6` | `POST /handlaggning/{handlaggningId}/process` returns 500 when `replyTo` is provided but persisting it fails |
 
 ---
@@ -47,7 +47,7 @@ Error handling follows the same pattern established in `WorkflowServiceImpl.crea
 - Handläggning not found → throw `HandlaggningNotFoundException` → 404
 - Storage write failure (only when replyTo provided) → throw `HandlaggningReplyTopicWriteException` → 500
 - Erbjudande topic lookup failure → throw `ErbjudandeTopicReadException` → 500
-- Kafka send failure → log and swallow, return 200 (process start is best-effort)
+- Kafka send failure → throw `HandlaggningProcessStartException` → 500 (process start is the primary action; failure must be surfaced)
 
 ---
 

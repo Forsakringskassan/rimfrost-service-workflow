@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import se.fk.github.rimfrost.workflow.logic.exception.ErbjudandeTopicReadException;
 import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningNotFoundException;
+import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningProcessStartException;
 import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningReplyTopicWriteException;
 import se.fk.github.rimfrost.workflow.logic.service.WorkflowService;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.PostHandlaggningProcessRequest;
@@ -81,6 +82,19 @@ public class WorkflowControllerTest extends WorkflowTestBase
             .post("/handlaggning/{id}/process", UUID.randomUUID())
             .then()
             .statusCode(404);
+   }
+
+   @Test
+   @DisplayName("FKPOC-869-AC5: POST /handlaggning/{id}/process returnerar 500 när Kafka-processstart misslyckas")
+   void should_return_500_when_process_start_fails_on_restart_process()
+   {
+      Mockito.when(workflowService.restartProcess(Mockito.any(), Mockito.any()))
+            .thenThrow(new HandlaggningProcessStartException(new RuntimeException()));
+      given().contentType(ContentType.JSON)
+            .body(new PostHandlaggningProcessRequest())
+            .post("/handlaggning/{id}/process", UUID.randomUUID())
+            .then()
+            .statusCode(500);
    }
 
    @Test

@@ -113,14 +113,7 @@ public class WorkflowServiceImpl implements WorkflowService
 
       var erbjudandeTopic = getErbjudandeTopic(handlaggning.yrkande().erbjudandeId());
 
-      try
-      {
-         startHandlaggningProcess(erbjudandeTopic, handlaggningId);
-      }
-      catch (HandlaggningProcessStartException e)
-      {
-         LOGGER.error("Failed to start process for handlaggning id: {}", handlaggningId, e);
-      }
+      startHandlaggningProcess(erbjudandeTopic, handlaggningId);
 
       return mapper.toHandlaggningDTO(handlaggning);
    }

@@ -296,13 +296,12 @@ public class WorkflowServiceTest extends WorkflowTestBase
    }
 
    @Test
-   @DisplayName("FKPOC-869-AC5: Handläggning returneras även om Kafka-processmeddelande misslyckas")
-   void should_return_handlaggning_when_send_request_message_fails_during_restart_process()
+   @DisplayName("FKPOC-869-AC5: Kafka-fel vid processstart ger HandlaggningProcessStartException")
+   void should_throw_handlaggning_process_start_exception_when_send_request_message_fails_during_restart_process()
    {
       var handlaggningId = UUID.randomUUID();
       Mockito.doThrow(new IllegalStateException()).when(kafkaProducer).sendRequestMessage(Mockito.any(), Mockito.any());
-      var result = workflowService.restartProcess(handlaggningId, null);
-      assertNotNull(result);
+      assertThrows(HandlaggningProcessStartException.class, () -> workflowService.restartProcess(handlaggningId, null));
    }
 
    @Test
