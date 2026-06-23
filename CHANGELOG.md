@@ -2,6 +2,13 @@
 
 Changelog of rimfrost-service-workflow.
 
+## 0.2.0 (2026-06-23)
+
+### Features
+
+-  Return 500 on Kafka process-start failure instead of swallowing ([55fe2](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/55fe289de725a4c) Ulf Slunga)  
+-  Implement postHandlaggningProcess in controller and mapper ([31de5](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/31de5e6f2ab5ff8) Ulf Slunga)  
+
 ## 0.1.1 (2026-06-23)
 
 ### Bug Fixes
