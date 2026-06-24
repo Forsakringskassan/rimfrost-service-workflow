@@ -254,7 +254,8 @@ public class WorkflowServiceTest extends WorkflowTestBase
       wireMockServer.stubFor(WireMock.get(WireMock.urlPathMatching("/handlaggning/.+"))
             .willReturn(WireMock.aResponse().withStatus(404)));
       var handlaggningId = UUID.randomUUID();
-      assertThrows(HandlaggningNotFoundException.class, () -> workflowService.restartProcess(handlaggningId, null));
+      assertThrows(HandlaggningNotFoundException.class,
+            () -> workflowService.restartProcess(handlaggningId, WorkflowTestData.REPLY_TO));
    }
 
    @Test
@@ -264,7 +265,8 @@ public class WorkflowServiceTest extends WorkflowTestBase
       wireMockServer.stubFor(WireMock.get(WireMock.urlPathMatching("/handlaggning/.+"))
             .willReturn(WireMock.aResponse().withStatus(500)));
       var handlaggningId = UUID.randomUUID();
-      assertThrows(HandlaggningAdapterException.class, () -> workflowService.restartProcess(handlaggningId, null));
+      assertThrows(HandlaggningAdapterException.class,
+            () -> workflowService.restartProcess(handlaggningId, WorkflowTestData.REPLY_TO));
    }
 
    @Test
@@ -272,18 +274,9 @@ public class WorkflowServiceTest extends WorkflowTestBase
    void should_store_reply_topic_when_reply_to_is_present_during_restart_process()
    {
       var handlaggningId = UUID.randomUUID();
-      var replyTo = "my-replyTo-topic";
+      var replyTo = WorkflowTestData.REPLY_TO;
       workflowService.restartProcess(handlaggningId, replyTo);
       Mockito.verify(workflowDataStorage, Mockito.times(1)).storeHandlaggningReplyTopic(eq(handlaggningId), eq(replyTo));
-   }
-
-   @Test
-   @DisplayName("FKPOC-869-AC3: replyTo-topic lagras inte när replyTo saknas")
-   void should_not_store_reply_topic_when_reply_to_is_absent_during_restart_process()
-   {
-      var handlaggningId = UUID.randomUUID();
-      workflowService.restartProcess(handlaggningId, null);
-      Mockito.verify(workflowDataStorage, Mockito.never()).storeHandlaggningReplyTopic(Mockito.any(), Mockito.any());
    }
 
    @Test
@@ -291,7 +284,7 @@ public class WorkflowServiceTest extends WorkflowTestBase
    void should_send_request_message_with_erbjudande_topic_and_handlaggning_id_during_restart_process()
    {
       var handlaggningId = UUID.randomUUID();
-      workflowService.restartProcess(handlaggningId, null);
+      workflowService.restartProcess(handlaggningId, WorkflowTestData.REPLY_TO);
       Mockito.verify(kafkaProducer, Mockito.times(1)).sendRequestMessage(eq("test"), eq(handlaggningId));
    }
 
@@ -301,7 +294,8 @@ public class WorkflowServiceTest extends WorkflowTestBase
    {
       var handlaggningId = UUID.randomUUID();
       Mockito.doThrow(new IllegalStateException()).when(kafkaProducer).sendRequestMessage(Mockito.any(), Mockito.any());
-      assertThrows(HandlaggningProcessStartException.class, () -> workflowService.restartProcess(handlaggningId, null));
+      assertThrows(HandlaggningProcessStartException.class,
+            () -> workflowService.restartProcess(handlaggningId, WorkflowTestData.REPLY_TO));
    }
 
    @Test
@@ -309,7 +303,7 @@ public class WorkflowServiceTest extends WorkflowTestBase
    void should_throw_handlaggning_reply_topic_write_exception_on_storage_write_failure_during_restart_process()
    {
       var handlaggningId = UUID.randomUUID();
-      var replyTo = "my-replyTo-topic";
+      var replyTo = WorkflowTestData.REPLY_TO;
       Mockito.doThrow(new IllegalStateException()).when(workflowDataStorage)
             .storeHandlaggningReplyTopic(eq(handlaggningId), eq(replyTo));
       assertThrows(HandlaggningReplyTopicWriteException.class,

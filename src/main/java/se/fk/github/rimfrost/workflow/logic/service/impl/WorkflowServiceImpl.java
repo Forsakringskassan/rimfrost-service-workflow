@@ -1,6 +1,5 @@
 package se.fk.github.rimfrost.workflow.logic.service.impl;
 
-import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -102,14 +101,11 @@ public class WorkflowServiceImpl implements WorkflowService
    }
 
    @Override
-   public HandlaggningDTO restartProcess(UUID handlaggningId, @Nullable String replyTo)
+   public HandlaggningDTO restartProcess(UUID handlaggningId, String replyTo)
    {
       var handlaggning = fetchHandlaggning(handlaggningId);
 
-      if (replyTo != null)
-      {
-         storeHandlaggningReplyTopic(handlaggningId, replyTo);
-      }
+      storeHandlaggningReplyTopic(handlaggningId, replyTo);
 
       var erbjudandeTopic = getErbjudandeTopic(handlaggning.yrkande().erbjudandeId());
 

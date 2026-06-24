@@ -2,6 +2,7 @@ package se.fk.github.rimfrost.workflow.presentation;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -44,6 +45,7 @@ public class WorkflowController implements WorkflowControllerApi
    })
    public PostYrkandeResponse postYrkande(PostYrkandeRequest postYrkandeRequest)
    {
+      requireReplyTo(postYrkandeRequest.getReplyTo());
       YrkandeCreateRequest yrkandeCreateRequest = mapper.toYrkandeCreateRequest(postYrkandeRequest);
       YrkandeCreateResponse yrkandeCreateResponse = workflowService.createYrkande(yrkandeCreateRequest);
       return mapper.toPostYrkandeResponse(yrkandeCreateResponse);
@@ -53,8 +55,20 @@ public class WorkflowController implements WorkflowControllerApi
    public PostHandlaggningProcessResponse postHandlaggningProcess(UUID handlaggningId,
          PostHandlaggningProcessRequest postHandlaggningProcessRequest)
    {
+      requireReplyTo(postHandlaggningProcessRequest.getReplyTo());
       HandlaggningDTO handlaggningDTO = workflowService.restartProcess(
             handlaggningId, postHandlaggningProcessRequest.getReplyTo());
       return mapper.toPostHandlaggningProcessResponse(handlaggningDTO);
+   }
+
+   /**
+    * Throws {@link BadRequestException} if replyTo is null or blank.
+    */
+   private void requireReplyTo(String replyTo)
+   {
+      if (replyTo == null || replyTo.isBlank())
+      {
+         throw new BadRequestException("replyTo is required");
+      }
    }
 }

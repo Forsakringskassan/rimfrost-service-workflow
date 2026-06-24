@@ -13,6 +13,7 @@ import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningNotFoundExcept
 import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningProcessStartException;
 import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningReplyTopicWriteException;
 import se.fk.github.rimfrost.workflow.logic.service.WorkflowService;
+import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.PostYrkandeRequest;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.PostHandlaggningProcessRequest;
 import static io.restassured.RestAssured.given;
 import static se.fk.github.rimfrost.workflow.WorkflowTestData.createHandlaggningDTO;
@@ -65,7 +66,7 @@ public class WorkflowControllerTest extends WorkflowTestBase
    {
       Mockito.when(workflowService.restartProcess(Mockito.any(), Mockito.any())).thenReturn(createHandlaggningDTO());
       given().contentType(ContentType.JSON)
-            .body(new PostHandlaggningProcessRequest())
+            .body(new PostHandlaggningProcessRequest(WorkflowTestData.REPLY_TO))
             .post("/handlaggning/{id}/process", UUID.randomUUID())
             .then()
             .statusCode(200);
@@ -78,7 +79,7 @@ public class WorkflowControllerTest extends WorkflowTestBase
       Mockito.when(workflowService.restartProcess(Mockito.any(), Mockito.any()))
             .thenThrow(new HandlaggningNotFoundException(new RuntimeException()));
       given().contentType(ContentType.JSON)
-            .body(new PostHandlaggningProcessRequest())
+            .body(new PostHandlaggningProcessRequest(WorkflowTestData.REPLY_TO))
             .post("/handlaggning/{id}/process", UUID.randomUUID())
             .then()
             .statusCode(404);
@@ -91,7 +92,7 @@ public class WorkflowControllerTest extends WorkflowTestBase
       Mockito.when(workflowService.restartProcess(Mockito.any(), Mockito.any()))
             .thenThrow(new HandlaggningProcessStartException(new RuntimeException()));
       given().contentType(ContentType.JSON)
-            .body(new PostHandlaggningProcessRequest())
+            .body(new PostHandlaggningProcessRequest(WorkflowTestData.REPLY_TO))
             .post("/handlaggning/{id}/process", UUID.randomUUID())
             .then()
             .statusCode(500);
@@ -104,9 +105,29 @@ public class WorkflowControllerTest extends WorkflowTestBase
       Mockito.when(workflowService.restartProcess(Mockito.any(), Mockito.any()))
             .thenThrow(new HandlaggningReplyTopicWriteException(new RuntimeException()));
       given().contentType(ContentType.JSON)
-            .body(new PostHandlaggningProcessRequest())
+            .body(new PostHandlaggningProcessRequest(WorkflowTestData.REPLY_TO))
             .post("/handlaggning/{id}/process", UUID.randomUUID())
             .then()
             .statusCode(500);
+   }
+
+   @Test
+   @DisplayName("FKPOC-874: POST /handlaggning/{id}/process returnerar 400 när replyTo saknas")
+   void should_return_400_when_reply_to_is_missing_on_restart_process()
+   {
+      given().contentType(ContentType.JSON)
+            .body(new PostHandlaggningProcessRequest())
+            .post("/handlaggning/{id}/process", UUID.randomUUID())
+            .then()
+            .statusCode(400);
+   }
+
+   @Test
+   @DisplayName("FKPOC-874: POST /yrkande returnerar 400 när replyTo saknas")
+   void should_return_400_when_reply_to_is_missing_on_create_yrkande()
+   {
+      PostYrkandeRequest request = createPostYrkandeRequest();
+      request.setReplyTo(null);
+      sendCreateYrkandeRequest(request, 400);
    }
 }
