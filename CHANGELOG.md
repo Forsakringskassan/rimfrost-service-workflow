@@ -2,6 +2,15 @@
 
 Changelog of rimfrost-service-workflow.
 
+## 0.2.1 (2026-06-24)
+
+### Bug Fixes
+
+-  Use empty string instead of blank in replyTo validation tests ([78d58](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/78d58242c808032) Ulf Slunga)  
+-  Extract sendRestartProcessRequest helper to align process test style with yrkande ([96ebb](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/96ebbb92ca9bd6a) Ulf Slunga)  
+-  Add blank replyTo tests, document requireReplyTo limitation, update AC3 traceability ([47aad](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/47aad75595f84cf) Ulf Slunga)  
+-  make replyTo mandatory in POST /yrkande and POST /handlaggning/{id}/process ([bee94](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/bee94139bae5d22) Ulf Slunga)  
+
 ## 0.2.0 (2026-06-23)
 
 ### Features
