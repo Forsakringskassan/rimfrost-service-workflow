@@ -1,5 +1,13 @@
 # Plan — FKPOC-874: Make replyTo mandatory
 
+## Revised requirements from FKPOC-869
+
+| Tag | Original requirement (FKPOC-869) | Revised by this ticket |
+|-----|----------------------------------|------------------------|
+| `FKPOC-869-AC3` | `replyTo` is persisted only when present; when absent the existing stored value is retained | **Superseded**: `replyTo` is now mandatory in both `POST /yrkande` and `POST /handlaggning/{id}/process`. Omitting it or sending a blank value returns 400. The "retain existing value when absent" branch no longer exists. |
+
+---
+
 ## Context
 
 `replyTo` is the Kafka reply topic stored when a handläggning process starts and used to send the result back when the process completes. It was previously optional in both `POST /yrkande` and `POST /handlaggning/{id}/process`.

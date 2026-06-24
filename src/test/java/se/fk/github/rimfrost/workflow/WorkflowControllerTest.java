@@ -123,11 +123,31 @@ public class WorkflowControllerTest extends WorkflowTestBase
    }
 
    @Test
+   @DisplayName("FKPOC-874: POST /handlaggning/{id}/process returnerar 400 när replyTo är tom sträng")
+   void should_return_400_when_reply_to_is_blank_on_restart_process()
+   {
+      given().contentType(ContentType.JSON)
+            .body(new PostHandlaggningProcessRequest(" "))
+            .post("/handlaggning/{id}/process", UUID.randomUUID())
+            .then()
+            .statusCode(400);
+   }
+
+   @Test
    @DisplayName("FKPOC-874: POST /yrkande returnerar 400 när replyTo saknas")
    void should_return_400_when_reply_to_is_missing_on_create_yrkande()
    {
       PostYrkandeRequest request = createPostYrkandeRequest();
       request.setReplyTo(null);
+      sendCreateYrkandeRequest(request, 400);
+   }
+
+   @Test
+   @DisplayName("FKPOC-874: POST /yrkande returnerar 400 när replyTo är tom sträng")
+   void should_return_400_when_reply_to_is_blank_on_create_yrkande()
+   {
+      PostYrkandeRequest request = createPostYrkandeRequest();
+      request.setReplyTo(" ");
       sendCreateYrkandeRequest(request, 400);
    }
 }

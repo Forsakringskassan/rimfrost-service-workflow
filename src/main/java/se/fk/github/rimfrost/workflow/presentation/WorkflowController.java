@@ -63,6 +63,13 @@ public class WorkflowController implements WorkflowControllerApi
 
    /**
     * Throws {@link BadRequestException} if replyTo is null or blank.
+    *
+    * <p>The generated {@link WorkflowControllerApi} declares {@code @Valid} on both request body
+    * parameters, and the spec model declares {@code @NotNull @Size(min=1)} on {@code replyTo}.
+    * However, Quarkus RESTEasy Reactive builds endpoint invokers from the concrete class at
+    * compile time and does not inherit {@code @Valid} from interface method parameters — so
+    * Bean Validation never fires for requests routed through this controller. This guard is
+    * therefore the only mechanism that enforces the constraint at runtime.
     */
    private void requireReplyTo(String replyTo)
    {

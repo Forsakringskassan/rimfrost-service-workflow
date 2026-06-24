@@ -270,8 +270,8 @@ public class WorkflowServiceTest extends WorkflowTestBase
    }
 
    @Test
-   @DisplayName("FKPOC-869-AC3: replyTo-topic lagras när replyTo är angivet")
-   void should_store_reply_topic_when_reply_to_is_present_during_restart_process()
+   @DisplayName("FKPOC-874 (reviderar FKPOC-869-AC3): replyTo-topic lagras alltid vid restart")
+   void should_always_store_reply_topic_during_restart_process()
    {
       var handlaggningId = UUID.randomUUID();
       var replyTo = WorkflowTestData.REPLY_TO;
