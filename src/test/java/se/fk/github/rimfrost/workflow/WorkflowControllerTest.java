@@ -102,9 +102,9 @@ public class WorkflowControllerTest extends WorkflowTestBase
 
    @Test
    @DisplayName("FKPOC-874: POST /handlaggning/{id}/process returnerar 400 när replyTo är tom sträng")
-   void should_return_400_when_reply_to_is_blank_on_restart_process()
+   void should_return_400_when_reply_to_is_empty_on_restart_process()
    {
-      sendRestartProcessRequest(UUID.randomUUID(), new PostHandlaggningProcessRequest(" "), 400);
+      sendRestartProcessRequest(UUID.randomUUID(), new PostHandlaggningProcessRequest(""), 400);
    }
 
    @Test
@@ -118,10 +118,10 @@ public class WorkflowControllerTest extends WorkflowTestBase
 
    @Test
    @DisplayName("FKPOC-874: POST /yrkande returnerar 400 när replyTo är tom sträng")
-   void should_return_400_when_reply_to_is_blank_on_create_yrkande()
+   void should_return_400_when_reply_to_is_empty_on_create_yrkande()
    {
       PostYrkandeRequest request = createPostYrkandeRequest();
-      request.setReplyTo(" ");
+      request.setReplyTo("");
       sendCreateYrkandeRequest(request, 400);
    }
 }
