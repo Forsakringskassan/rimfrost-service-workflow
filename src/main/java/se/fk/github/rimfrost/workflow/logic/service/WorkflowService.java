@@ -1,6 +1,5 @@
 package se.fk.github.rimfrost.workflow.logic.service;
 
-import jakarta.annotation.Nullable;
 import java.util.UUID;
 import se.fk.github.rimfrost.workflow.logic.dto.HandlaggningDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.HandlaggningResponseDTO;
@@ -15,12 +14,12 @@ public interface WorkflowService
 
    /**
     * Restarts the process for an existing handlaggning.
-    * If {@code replyTo} is non-null, it replaces any previously stored reply topic for this handlaggning.
+    * {@code replyTo} replaces any previously stored reply topic for this handlaggning.
     *
     * @throws se.fk.github.rimfrost.workflow.logic.exception.HandlaggningNotFoundException if no handlaggning exists for {@code handlaggningId}
     * @throws se.fk.github.rimfrost.workflow.logic.exception.HandlaggningReplyTopicWriteException if persisting {@code replyTo} fails
     * @throws se.fk.github.rimfrost.workflow.logic.exception.ErbjudandeTopicReadException if the erbjudande topic lookup fails
     * @throws se.fk.github.rimfrost.workflow.logic.exception.HandlaggningProcessStartException if sending the Kafka process-start message fails
     */
-   HandlaggningDTO restartProcess(UUID handlaggningId, @Nullable String replyTo);
+   HandlaggningDTO restartProcess(UUID handlaggningId, String replyTo);
 }

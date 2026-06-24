@@ -3,7 +3,6 @@ package se.fk.github.rimfrost.workflow;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.http.ContentType;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,7 +13,7 @@ import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningProcessStartEx
 import se.fk.github.rimfrost.workflow.logic.exception.HandlaggningReplyTopicWriteException;
 import se.fk.github.rimfrost.workflow.logic.service.WorkflowService;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.PostHandlaggningProcessRequest;
-import static io.restassured.RestAssured.given;
+import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.PostYrkandeRequest;
 import static se.fk.github.rimfrost.workflow.WorkflowTestData.createHandlaggningDTO;
 import static se.fk.github.rimfrost.workflow.WorkflowTestData.createPostYrkandeRequest;
 
@@ -64,11 +63,7 @@ public class WorkflowControllerTest extends WorkflowTestBase
    void should_return_200_with_handlaggning_on_restart_process()
    {
       Mockito.when(workflowService.restartProcess(Mockito.any(), Mockito.any())).thenReturn(createHandlaggningDTO());
-      given().contentType(ContentType.JSON)
-            .body(new PostHandlaggningProcessRequest())
-            .post("/handlaggning/{id}/process", UUID.randomUUID())
-            .then()
-            .statusCode(200);
+      sendRestartProcessRequest(UUID.randomUUID(), new PostHandlaggningProcessRequest(WorkflowTestData.REPLY_TO), 200);
    }
 
    @Test
@@ -77,11 +72,7 @@ public class WorkflowControllerTest extends WorkflowTestBase
    {
       Mockito.when(workflowService.restartProcess(Mockito.any(), Mockito.any()))
             .thenThrow(new HandlaggningNotFoundException(new RuntimeException()));
-      given().contentType(ContentType.JSON)
-            .body(new PostHandlaggningProcessRequest())
-            .post("/handlaggning/{id}/process", UUID.randomUUID())
-            .then()
-            .statusCode(404);
+      sendRestartProcessRequest(UUID.randomUUID(), new PostHandlaggningProcessRequest(WorkflowTestData.REPLY_TO), 404);
    }
 
    @Test
@@ -90,11 +81,7 @@ public class WorkflowControllerTest extends WorkflowTestBase
    {
       Mockito.when(workflowService.restartProcess(Mockito.any(), Mockito.any()))
             .thenThrow(new HandlaggningProcessStartException(new RuntimeException()));
-      given().contentType(ContentType.JSON)
-            .body(new PostHandlaggningProcessRequest())
-            .post("/handlaggning/{id}/process", UUID.randomUUID())
-            .then()
-            .statusCode(500);
+      sendRestartProcessRequest(UUID.randomUUID(), new PostHandlaggningProcessRequest(WorkflowTestData.REPLY_TO), 500);
    }
 
    @Test
@@ -103,10 +90,38 @@ public class WorkflowControllerTest extends WorkflowTestBase
    {
       Mockito.when(workflowService.restartProcess(Mockito.any(), Mockito.any()))
             .thenThrow(new HandlaggningReplyTopicWriteException(new RuntimeException()));
-      given().contentType(ContentType.JSON)
-            .body(new PostHandlaggningProcessRequest())
-            .post("/handlaggning/{id}/process", UUID.randomUUID())
-            .then()
-            .statusCode(500);
+      sendRestartProcessRequest(UUID.randomUUID(), new PostHandlaggningProcessRequest(WorkflowTestData.REPLY_TO), 500);
+   }
+
+   @Test
+   @DisplayName("FKPOC-874: POST /handlaggning/{id}/process returnerar 400 när replyTo saknas")
+   void should_return_400_when_reply_to_is_missing_on_restart_process()
+   {
+      sendRestartProcessRequest(UUID.randomUUID(), new PostHandlaggningProcessRequest(), 400);
+   }
+
+   @Test
+   @DisplayName("FKPOC-874: POST /handlaggning/{id}/process returnerar 400 när replyTo är tom sträng")
+   void should_return_400_when_reply_to_is_empty_on_restart_process()
+   {
+      sendRestartProcessRequest(UUID.randomUUID(), new PostHandlaggningProcessRequest(""), 400);
+   }
+
+   @Test
+   @DisplayName("FKPOC-874: POST /yrkande returnerar 400 när replyTo saknas")
+   void should_return_400_when_reply_to_is_missing_on_create_yrkande()
+   {
+      PostYrkandeRequest request = createPostYrkandeRequest();
+      request.setReplyTo(null);
+      sendCreateYrkandeRequest(request, 400);
+   }
+
+   @Test
+   @DisplayName("FKPOC-874: POST /yrkande returnerar 400 när replyTo är tom sträng")
+   void should_return_400_when_reply_to_is_empty_on_create_yrkande()
+   {
+      PostYrkandeRequest request = createPostYrkandeRequest();
+      request.setReplyTo("");
+      sendCreateYrkandeRequest(request, 400);
    }
 }

@@ -28,6 +28,8 @@ import java.util.UUID;
 
 public class WorkflowTestData
 {
+   public static final String REPLY_TO = "replyTopic";
+
    public static YrkandeCreateRequest createYrkandeCreateRequest()
    {
       IdtypDTO idtypDTO = ImmutableIdtypDTO.builder()
@@ -53,7 +55,7 @@ public class WorkflowTestData
             .yrkandeTom(OffsetDateTime.now())
             .handlaggningspecifikationId(UUID.randomUUID())
             .avsiktsId(UUID.randomUUID().toString())
-            .replyTo("replyTopic")
+            .replyTo(REPLY_TO)
             .individYrkandeRoller(List.of(individYrkandeRollDTO))
             .produceradeResultat(List.of(produceratResultatCreateRequest))
             .build();
@@ -83,7 +85,7 @@ public class WorkflowTestData
       request.yrkandeTom(OffsetDateTime.now());
       request.handlaggningspecifikationId(UUID.randomUUID());
       request.avsiktsId(UUID.randomUUID().toString());
-      request.replyTo("replyTopic");
+      request.replyTo(REPLY_TO);
       request.setIndividYrkandeRoller(List.of(individYrkandeRoll));
       request.setProduceradeResultat(List.of(produceratResultat));
       return request;

@@ -1,5 +1,6 @@
 package se.fk.github.rimfrost.workflow.presentation.exception;
 
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 import org.slf4j.Logger;
@@ -13,6 +14,11 @@ public class CatchAllExceptionMapper implements jakarta.ws.rs.ext.ExceptionMappe
    @Override
    public Response toResponse(Exception exception)
    {
+      if (exception instanceof WebApplicationException webApplicationException)
+      {
+         return webApplicationException.getResponse();
+      }
+
       LOGGER.error("Request terminated due to unexpected exception", exception);
 
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
