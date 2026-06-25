@@ -2,6 +2,12 @@
 
 Changelog of rimfrost-service-workflow.
 
+## 0.2.2 (2026-06-25)
+
+### Bug Fixes
+
+-  Replace requireReplyTo with quarkus-hibernation-validator validation ([aa7d3](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/aa7d3020726015d) Lars Persson)  
+
 ## 0.2.1 (2026-06-24)
 
 ### Bug Fixes
