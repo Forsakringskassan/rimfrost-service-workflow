@@ -75,6 +75,7 @@ public class WorkflowTestData
       produceratResultat.setId(UUID.randomUUID());
       produceratResultat.setFrom(OffsetDateTime.now());
       produceratResultat.setTom(OffsetDateTime.now());
+      produceratResultat.setYrkandestatus(UUID.randomUUID().toString());
       produceratResultat.setVersion(1);
       produceratResultat.setTyp("ersattning");
       produceratResultat.setData("{}");
