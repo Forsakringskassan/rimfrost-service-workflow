@@ -2,6 +2,13 @@
 
 Changelog of rimfrost-service-workflow.
 
+## 0.2.3 (2026-06-29)
+
+### Bug Fixes
+
+-  Improve ValidationException handling ([1d49c](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/1d49c46a0b8732d) Lars Persson)  
+-  Fix hibernate-validator not considering all validation constraints ([ef74e](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/ef74ea77e33d9c9) Lars Persson)  
+
 ## 0.2.2 (2026-06-25)
 
 ### Bug Fixes
