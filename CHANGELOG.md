@@ -2,6 +2,16 @@
 
 Changelog of rimfrost-service-workflow.
 
+## 0.2.4 (2026-09-22)
+
+### Bug Fixes
+
+-  Bump dependency versions in preparation for 1.2 ([f3a3f](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/f3a3f45e8317069) Lars Persson)  
+-  **deps**  update dependency se.fk.rimfrost.framework.handlaggning:rimfrost-framework-handlaggning-adapter to v1.2.3 ([3ce4c](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/3ce4cd7e946e2c9) renovate[bot])  
+
+### Dependency updates
+
+- pin forsakringskassan/.github action to d1349e6 ([859a7](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/859a78f557b3d36) renovate[bot])  
 ## 0.2.3 (2026-06-29)
 
 ### Bug Fixes
