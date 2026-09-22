@@ -55,17 +55,17 @@
     <dependency>
       <groupId>se.fk.rimfrost</groupId>
       <artifactId>rimfrost-process-asyncapi</artifactId>
-      <version>1.2.2</version>
+      <version>1.2.3</version>
     </dependency>
     <dependency>
       <groupId>se.fk.rimfrost.framework.erbjudande.topic</groupId>
       <artifactId>rimfrost-framework-erbjudande-topic-adapter</artifactId>
-      <version>0.0.1</version>
+      <version>0.0.2</version>
     </dependency>
     <dependency>
       <groupId>se.fk.rimfrost.framework.handlaggning</groupId>
       <artifactId>rimfrost-framework-handlaggning-adapter</artifactId>
-      <version>1.2.3</version>
+      <version>1.2.4</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
