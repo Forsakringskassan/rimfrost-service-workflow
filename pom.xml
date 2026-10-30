@@ -55,7 +55,7 @@
     <dependency>
       <groupId>se.fk.rimfrost</groupId>
       <artifactId>rimfrost-process-asyncapi</artifactId>
-      <version>1.2.3</version>
+      <version>1.2.4</version>
     </dependency>
     <dependency>
       <groupId>se.fk.rimfrost.framework.erbjudande.topic</groupId>
