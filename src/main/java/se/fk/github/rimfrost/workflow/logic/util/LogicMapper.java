@@ -1,30 +1,37 @@
 package se.fk.github.rimfrost.workflow.logic.util;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import se.fk.github.rimfrost.workflow.logic.dto.BeslutDTO;
+import se.fk.github.rimfrost.workflow.logic.dto.BeslutsradDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.HandlaggningDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.IdtypDTO;
+import se.fk.github.rimfrost.workflow.logic.dto.ImmutableBeslutDTO;
+import se.fk.github.rimfrost.workflow.logic.dto.ImmutableBeslutsradDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableHandlaggningDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableIdtypDTO;
-import se.fk.github.rimfrost.workflow.logic.dto.ImmutableIndividYrkandeRollDTO;
-import se.fk.github.rimfrost.workflow.logic.dto.ImmutableProduceratResultatDTO;
+import se.fk.github.rimfrost.workflow.logic.dto.ImmutableRollIYrkandeDTO;
+import se.fk.github.rimfrost.workflow.logic.dto.ImmutableSakfragaStallningstagandeDTO;
+import se.fk.github.rimfrost.workflow.logic.dto.ImmutableSakfragaStallningstagandeRefDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableYrkandeDTO;
-import se.fk.github.rimfrost.workflow.logic.dto.IndividYrkandeRollDTO;
-import se.fk.github.rimfrost.workflow.logic.dto.ProduceratResultatDTO;
+import se.fk.github.rimfrost.workflow.logic.dto.RollIYrkandeDTO;
+import se.fk.github.rimfrost.workflow.logic.dto.SakfragaStallningstagandeDTO;
+import se.fk.github.rimfrost.workflow.logic.dto.SakfragaStallningstagandeRefDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.YrkandeDTO;
+import se.fk.rimfrost.framework.handlaggning.model.Beslut;
+import se.fk.rimfrost.framework.handlaggning.model.Beslutsrad;
 import se.fk.rimfrost.framework.handlaggning.model.Handlaggning;
-import se.fk.rimfrost.framework.handlaggning.model.HandlaggningUpdate;
 import se.fk.rimfrost.framework.handlaggning.model.Idtyp;
 import se.fk.rimfrost.framework.handlaggning.model.ImmutableIdtyp;
-import se.fk.rimfrost.framework.handlaggning.model.ImmutableIndividYrkandeRoll;
-import se.fk.rimfrost.framework.handlaggning.model.IndividYrkandeRoll;
-import se.fk.rimfrost.framework.handlaggning.model.ProduceratResultat;
+import se.fk.rimfrost.framework.handlaggning.model.RollIYrkande;
+import se.fk.rimfrost.framework.handlaggning.model.SakfragaStallningstagandeContainer;
+import se.fk.rimfrost.framework.handlaggning.model.SakfragaStallningstagandeRef;
 import se.fk.rimfrost.framework.handlaggning.model.Yrkande;
 
 @ApplicationScoped
 public class LogicMapper
 {
    /**
-    * Maps a {@link Handlaggning} read from the handlaggning adapter to {@link HandlaggningDTO}.
+    * Maps a {@link Handlaggning} from the handlaggning adapter to {@link HandlaggningDTO}.
     */
    public HandlaggningDTO toHandlaggningDTO(Handlaggning handlaggning)
    {
@@ -32,25 +39,11 @@ public class LogicMapper
             .id(handlaggning.id())
             .yrkande(toYrkandeDTO(handlaggning.yrkande()))
             .version(handlaggning.version())
-            .processinstansId(handlaggning.processInstansId())
+            .handlaggningIdTyp(handlaggning.handlaggningIdTyp())
+            .handlaggningIdVarde(handlaggning.handlaggningIdVarde())
             .handlaggningspecifikationId(handlaggning.handlaggningspecifikationId())
             .skapadTS(handlaggning.skapadTS())
             .avslutadTS(handlaggning.avslutadTS())
-            .build();
-   }
-
-   /**
-    * Maps a {@link HandlaggningUpdate} to {@link HandlaggningDTO}.
-    */
-   public HandlaggningDTO toHandlaggningDTO(HandlaggningUpdate handlaggningUpdate)
-   {
-      return ImmutableHandlaggningDTO.builder()
-            .id(handlaggningUpdate.id())
-            .yrkande(toYrkandeDTO(handlaggningUpdate.yrkande()))
-            .version(handlaggningUpdate.version())
-            .processinstansId(handlaggningUpdate.processInstansId())
-            .handlaggningspecifikationId(handlaggningUpdate.handlaggningspecifikationId())
-            .skapadTS(handlaggningUpdate.skapadTS())
             .build();
    }
 
@@ -58,37 +51,35 @@ public class LogicMapper
    {
       return ImmutableYrkandeDTO.builder()
             .id(yrkande.id())
-            .erbjudandeId(yrkande.erbjudandeId())
+            .ingangtypId(yrkande.ingangtypId())
             .version(yrkande.version())
             .yrkandedatum(yrkande.yrkandeDatum())
             .yrkandeFrom(yrkande.yrkandeFrom())
             .yrkandeTom(yrkande.yrkandeTom())
             .yrkandestatus(yrkande.yrkandeStatus())
             .avsikt(yrkande.avsikt())
-            .individYrkandeRoll(yrkande.individYrkandeRoller()
+            .rollerIYrkande(yrkande.rollerIYrkande()
                   .stream()
-                  .map(this::toIndividYrkandeRollDTO)
+                  .map(this::toRollIYrkandeDTO)
                   .toList())
-            .produceradeResultat(yrkande.produceradeResultat()
+            .sakfragorStallningstaganden(yrkande.sakfragorStallningstaganden()
                   .stream()
-                  .map(this::toProduceratResultatDTO)
+                  .map(this::toSakfragaStallningstagandeDTO)
+                  .toList())
+            .beslut(yrkande.beslut()
+                  .stream()
+                  .map(this::toBeslutDTO)
                   .toList())
             .build();
    }
 
-   public IndividYrkandeRollDTO toIndividYrkandeRollDTO(IndividYrkandeRoll individYrkandeRollEntity)
+   public RollIYrkandeDTO toRollIYrkandeDTO(RollIYrkande rollIYrkande)
    {
-      return ImmutableIndividYrkandeRollDTO.builder()
-            .individ(toIdtypDTO(individYrkandeRollEntity.individ()))
-            .yrkandeRollId(individYrkandeRollEntity.yrkandeRollId())
-            .build();
-   }
-
-   public IndividYrkandeRoll toIndividYrkandeRoll(IndividYrkandeRollDTO individYrkandeRoll)
-   {
-      return ImmutableIndividYrkandeRoll.builder()
-            .individ(toIdtyp(individYrkandeRoll.individ()))
-            .yrkandeRollId(individYrkandeRoll.yrkandeRollId())
+      return ImmutableRollIYrkandeDTO.builder()
+            .id(rollIYrkande.id())
+            .individ(toIdtypDTO(rollIYrkande.individ()))
+            .yrkandeRollId(rollIYrkande.yrkandeRollId())
+            .avserYrkande(rollIYrkande.avserYrkande())
             .build();
    }
 
@@ -108,17 +99,51 @@ public class LogicMapper
             .build();
    }
 
-   public ProduceratResultatDTO toProduceratResultatDTO(ProduceratResultat produceratResultat)
+   public SakfragaStallningstagandeDTO toSakfragaStallningstagandeDTO(
+         SakfragaStallningstagandeContainer sakfragaStallningstagande)
    {
-      return ImmutableProduceratResultatDTO.builder()
-            .id(produceratResultat.id())
-            .version(produceratResultat.version())
-            .franOchMed(produceratResultat.resultatFrom())
-            .tillOchMed(produceratResultat.resultatTom())
-            .yrkandestatus(produceratResultat.yrkandeStatus())
-            .avslagsanledning(produceratResultat.avslagsanledning())
-            .typ(produceratResultat.typ())
-            .data(produceratResultat.data())
+      return ImmutableSakfragaStallningstagandeDTO.builder()
+            .id(sakfragaStallningstagande.id())
+            .objektTypId(sakfragaStallningstagande.objektTypId())
+            .data(sakfragaStallningstagande.data())
+            .build();
+   }
+
+   public BeslutDTO toBeslutDTO(Beslut beslut)
+   {
+      return ImmutableBeslutDTO.builder()
+            .id(beslut.id())
+            .version(beslut.version())
+            .datum(beslut.datum())
+            .beslutsfattare(toIdtypDTO(beslut.beslutsfattare()))
+            .beslutsrader(beslut.beslutsrader()
+                  .stream()
+                  .map(this::toBeslutsradDTO)
+                  .toList())
+            .build();
+   }
+
+   public BeslutsradDTO toBeslutsradDTO(Beslutsrad beslutsrad)
+   {
+      return ImmutableBeslutsradDTO.builder()
+            .id(beslutsrad.id())
+            .version(beslutsrad.version())
+            .beslutsTyp(beslutsrad.beslutsTyp())
+            .beslutsUtfall(beslutsrad.beslutsUtfall())
+            .avslutsTyp(beslutsrad.avslutsTyp())
+            .sakfragorStallningstaganden(beslutsrad.sakfragorStallningstaganden()
+                  .stream()
+                  .map(this::toSakfragaStallningstagandeRefDTO)
+                  .toList())
+            .build();
+   }
+
+   public SakfragaStallningstagandeRefDTO toSakfragaStallningstagandeRefDTO(
+         SakfragaStallningstagandeRef sakfragaStallningstagandeRef)
+   {
+      return ImmutableSakfragaStallningstagandeRefDTO.builder()
+            .id(sakfragaStallningstagandeRef.id())
+            .version(sakfragaStallningstagandeRef.version())
             .build();
    }
 }

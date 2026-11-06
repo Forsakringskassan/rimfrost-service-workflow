@@ -11,12 +11,12 @@ import se.fk.github.rimfrost.workflow.logic.dto.IdtypDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableHandlaggningErrorInfoDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableHandlaggningResponseDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableIdtypDTO;
-import se.fk.github.rimfrost.workflow.logic.dto.ImmutableIndividYrkandeRollDTO;
-import se.fk.github.rimfrost.workflow.logic.dto.ImmutableProduceratResultatCreateRequest;
+import se.fk.github.rimfrost.workflow.logic.dto.ImmutableRollIYrkandeCreateRequest;
+import se.fk.github.rimfrost.workflow.logic.dto.ImmutableSakfragaStallningstagandeCreateRequest;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableYrkandeCreateRequest;
-import se.fk.github.rimfrost.workflow.logic.dto.IndividYrkandeRollDTO;
-import se.fk.github.rimfrost.workflow.logic.dto.ProduceratResultatDTO;
-import se.fk.github.rimfrost.workflow.logic.dto.ProduceratResultatRefDTO;
+import se.fk.github.rimfrost.workflow.logic.dto.RollIYrkandeDTO;
+import se.fk.github.rimfrost.workflow.logic.dto.SakfragaStallningstagandeDTO;
+import se.fk.github.rimfrost.workflow.logic.dto.SakfragaStallningstagandeRefDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.YrkandeCreateRequest;
 import se.fk.github.rimfrost.workflow.logic.dto.YrkandeCreateResponse;
 import se.fk.github.rimfrost.workflow.logic.dto.YrkandeDTO;
@@ -26,12 +26,12 @@ import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.Beslu
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.Beslutsrad;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.Handlaggning;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.Idtyp;
-import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.IndividYrkandeRoll;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.PostHandlaggningProcessResponse;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.PostYrkandeRequest;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.PostYrkandeResponse;
-import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.ProduceratResultat;
-import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.ProduceratResultatRef;
+import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.RollIYrkande;
+import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.SakfragaStallningstagandeContainer;
+import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.SakfragaStallningstagandeRef;
 import se.fk.rimfrost.workflow.jaxrsspec.controllers.generatedsource.model.Yrkande;
 
 import java.util.Objects;
@@ -42,31 +42,29 @@ public class PresentationMapper
 {
    public YrkandeCreateRequest toYrkandeCreateRequest(PostYrkandeRequest postYrkandeRequest)
    {
-      var individYrkandeRoller = postYrkandeRequest.getIndividYrkandeRoller().stream()
-            .map(e -> ImmutableIndividYrkandeRollDTO.builder()
+      var rollerIYrkande = postYrkandeRequest.getRollerIYrkande().stream()
+            .map(e -> ImmutableRollIYrkandeCreateRequest.builder()
                   .individ(toIdtypDTO(e.getIndivid()))
                   .yrkandeRollId(e.getYrkandeRollId())
                   .build())
             .toList();
 
-      var produceradeResultat = postYrkandeRequest.getProduceradeResultat().stream()
-            .map(e -> ImmutableProduceratResultatCreateRequest.builder()
-                  .franOchMed(e.getFrom())
-                  .tillOchMed(e.getTom())
-                  .typ(e.getTyp())
+      var sakfragorStallningstaganden = postYrkandeRequest.getSakfragorStallningstaganden().stream()
+            .map(e -> ImmutableSakfragaStallningstagandeCreateRequest.builder()
+                  .objektTypId(e.getObjektTypId())
                   .data(e.getData())
                   .build())
             .toList();
 
       return ImmutableYrkandeCreateRequest.builder()
-            .erbjudandeId(postYrkandeRequest.getErbjudandeId())
+            .ingangtypId(postYrkandeRequest.getIngangtypId())
             .yrkandeFrom(postYrkandeRequest.getYrkandeFrom())
             .yrkandeTom(postYrkandeRequest.getYrkandeTom())
             .handlaggningspecifikationId(postYrkandeRequest.getHandlaggningspecifikationId())
             .avsiktsId(postYrkandeRequest.getAvsiktsId())
             .replyTo(postYrkandeRequest.getReplyTo())
-            .individYrkandeRoller(individYrkandeRoller)
-            .produceradeResultat(produceradeResultat)
+            .rollerIYrkande(rollerIYrkande)
+            .sakfragorStallningstaganden(sakfragorStallningstaganden)
             .build();
    }
 
@@ -141,56 +139,53 @@ public class PresentationMapper
    {
       Yrkande yrkande = new Yrkande();
       yrkande.setId(yrkandeDTO.id());
-      yrkande.setErbjudandeId(yrkandeDTO.erbjudandeId());
+      yrkande.setIngangtypId(yrkandeDTO.ingangtypId());
       yrkande.setVersion(yrkandeDTO.version());
       yrkande.setYrkandedatum(yrkandeDTO.yrkandedatum());
       yrkande.setYrkandeFrom(yrkandeDTO.yrkandeFrom());
       yrkande.setYrkandeTom(yrkandeDTO.yrkandeTom());
       yrkande.setYrkandestatus(yrkandeDTO.yrkandestatus());
       yrkande.setAvsikt(yrkandeDTO.avsikt());
-      yrkande.setIndividYrkandeRoller(
-            yrkandeDTO.individYrkandeRoll()
+      yrkande.setRollerIYrkande(
+            yrkandeDTO.rollerIYrkande()
                   .stream()
-                  .map(this::toIndividYrkandeRoll)
+                  .map(this::toRollIYrkande)
                   .toList());
-      yrkande.setProduceradeResultat(
-            yrkandeDTO.produceradeResultat()
+      yrkande.setSakfragorStallningstaganden(
+            yrkandeDTO.sakfragorStallningstaganden()
                   .stream()
-                  .map(this::toProduceratResultat)
+                  .map(this::toSakfragaStallningstagande)
                   .toList());
-      yrkande.setBeslut(toBeslut(yrkandeDTO.beslut()));
+      yrkande.setBeslut(
+            yrkandeDTO.beslut()
+                  .stream()
+                  .map(this::toBeslut)
+                  .toList());
       return yrkande;
    }
 
-   private IndividYrkandeRoll toIndividYrkandeRoll(IndividYrkandeRollDTO individYrkandeRollDTO)
+   private RollIYrkande toRollIYrkande(RollIYrkandeDTO rollIYrkandeDTO)
    {
-      var invidvidYrkandeRoll = new IndividYrkandeRoll();
-      invidvidYrkandeRoll.setIndivid(toIdtyp(individYrkandeRollDTO.individ()));
-      invidvidYrkandeRoll.setYrkandeRollId(individYrkandeRollDTO.yrkandeRollId());
-      return invidvidYrkandeRoll;
+      var rollIYrkande = new RollIYrkande();
+      rollIYrkande.setId(rollIYrkandeDTO.id());
+      rollIYrkande.setIndivid(toIdtyp(rollIYrkandeDTO.individ()));
+      rollIYrkande.setYrkandeRollId(rollIYrkandeDTO.yrkandeRollId());
+      rollIYrkande.setAvserYrkande(rollIYrkandeDTO.avserYrkande());
+      return rollIYrkande;
    }
 
-   private ProduceratResultat toProduceratResultat(ProduceratResultatDTO produceratResultatDTO)
+   private SakfragaStallningstagandeContainer toSakfragaStallningstagande(
+         SakfragaStallningstagandeDTO sakfragaStallningstagandeDTO)
    {
-      ProduceratResultat produceratResultat = new ProduceratResultat();
-      produceratResultat.setId(produceratResultatDTO.id());
-      produceratResultat.setVersion(produceratResultatDTO.version());
-      produceratResultat.setFrom(produceratResultatDTO.franOchMed());
-      produceratResultat.setTom(produceratResultatDTO.tillOchMed());
-      produceratResultat.setAvslagsanledning(produceratResultatDTO.avslagsanledning());
-      produceratResultat.setYrkandestatus(produceratResultatDTO.yrkandestatus());
-      produceratResultat.setTyp(produceratResultatDTO.typ());
-      produceratResultat.setData(produceratResultatDTO.data());
-      return produceratResultat;
+      var sakfragaStallningstagande = new SakfragaStallningstagandeContainer();
+      sakfragaStallningstagande.setId(sakfragaStallningstagandeDTO.id());
+      sakfragaStallningstagande.setObjektTypId(sakfragaStallningstagandeDTO.objektTypId());
+      sakfragaStallningstagande.setData(sakfragaStallningstagandeDTO.data());
+      return sakfragaStallningstagande;
    }
 
    private Beslut toBeslut(BeslutDTO beslutDTO)
    {
-      if (beslutDTO == null)
-      {
-         return null;
-      }
-
       Beslut beslut = new Beslut();
       beslut.setId(beslutDTO.id());
       beslut.setVersion(beslutDTO.version());
@@ -203,35 +198,26 @@ public class PresentationMapper
 
    private Beslutsrad toBeslutsrad(BeslutsradDTO beslutsradDTO)
    {
-      if (beslutsradDTO == null)
-      {
-         return null;
-      }
-
       Beslutsrad beslutsrad = new Beslutsrad();
       beslutsrad.setId(beslutsradDTO.id());
       beslutsrad.setVersion(beslutsradDTO.version());
       beslutsrad.setAvslutsTyp(beslutsradDTO.avslutsTyp());
       beslutsrad.setBeslutsTyp(beslutsradDTO.beslutsTyp());
       beslutsrad.setBeslutsUtfall(beslutsradDTO.beslutsUtfall());
-      beslutsrad.setProduceradeResultatRef(
-            beslutsradDTO.produceratResultatRefs().stream().map(this::toProduceratResultatRef).toList());
+      beslutsrad.setSakfragorStallningstaganden(
+            beslutsradDTO.sakfragorStallningstaganden().stream().map(this::toSakfragaStallningstagandeRef).toList());
 
       return beslutsrad;
    }
 
-   private ProduceratResultatRef toProduceratResultatRef(ProduceratResultatRefDTO produceratResultatRefDTO)
+   private SakfragaStallningstagandeRef toSakfragaStallningstagandeRef(
+         SakfragaStallningstagandeRefDTO sakfragaStallningstagandeRefDTO)
    {
-      if (produceratResultatRefDTO == null)
-      {
-         return null;
-      }
+      SakfragaStallningstagandeRef sakfragaStallningstagandeRef = new SakfragaStallningstagandeRef();
+      sakfragaStallningstagandeRef.setId(sakfragaStallningstagandeRefDTO.id());
+      sakfragaStallningstagandeRef.setVersion(sakfragaStallningstagandeRefDTO.version());
 
-      ProduceratResultatRef produceratResultatRef = new ProduceratResultatRef();
-      produceratResultatRef.setId(produceratResultatRefDTO.id());
-      produceratResultatRef.setVersion(produceratResultatRefDTO.version());
-
-      return produceratResultatRef;
+      return sakfragaStallningstagandeRef;
    }
 
    private Handlaggning toHandlaggning(HandlaggningDTO handlaggningDTO)
@@ -240,7 +226,8 @@ public class PresentationMapper
       handlagning.setId(handlaggningDTO.id());
       handlagning.setYrkande(toYrkande(handlaggningDTO.yrkande()));
       handlagning.setVersion(handlaggningDTO.version());
-      handlagning.setProcessinstansId(handlaggningDTO.processinstansId());
+      handlagning.setHandlaggningIdTyp(handlaggningDTO.handlaggningIdTyp());
+      handlagning.setHandlaggningIdVarde(handlaggningDTO.handlaggningIdVarde());
       handlagning.setSkapadTS(handlaggningDTO.skapadTS());
       handlagning.setAvslutadTS(handlaggningDTO.avslutadTS());
       handlagning.setHandlaggningspecifikationId(handlaggningDTO.handlaggningspecifikationId());

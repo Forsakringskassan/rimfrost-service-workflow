@@ -1,7 +1,6 @@
 package se.fk.github.rimfrost.workflow.logic.service.impl;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -12,7 +11,8 @@ import jakarta.inject.Inject;
 import se.fk.github.rimfrost.workflow.integration.KafkaProducer;
 import se.fk.github.rimfrost.workflow.logic.dto.HandlaggningResponseDTO;
 import se.fk.github.rimfrost.workflow.logic.dto.ImmutableYrkandeCreateResponse;
-import se.fk.github.rimfrost.workflow.logic.dto.ProduceratResultatCreateRequest;
+import se.fk.github.rimfrost.workflow.logic.dto.RollIYrkandeCreateRequest;
+import se.fk.github.rimfrost.workflow.logic.dto.SakfragaStallningstagandeCreateRequest;
 import se.fk.github.rimfrost.workflow.logic.dto.YrkandeCreateRequest;
 import se.fk.github.rimfrost.workflow.logic.dto.YrkandeCreateResponse;
 import se.fk.github.rimfrost.workflow.logic.dto.HandlaggningDTO;
@@ -32,10 +32,13 @@ import se.fk.rimfrost.framework.handlaggning.adapter.HandlaggningAdapter;
 import se.fk.rimfrost.framework.handlaggning.exception.HandlaggningException;
 import se.fk.rimfrost.framework.handlaggning.model.Handlaggning;
 import se.fk.rimfrost.framework.handlaggning.model.HandlaggningUpdate;
+import se.fk.rimfrost.framework.handlaggning.model.ImmutableHandlaggning;
 import se.fk.rimfrost.framework.handlaggning.model.ImmutableHandlaggningUpdate;
-import se.fk.rimfrost.framework.handlaggning.model.ImmutableProduceratResultat;
+import se.fk.rimfrost.framework.handlaggning.model.ImmutableRollIYrkande;
+import se.fk.rimfrost.framework.handlaggning.model.ImmutableSakfragaStallningstagandeContainer;
 import se.fk.rimfrost.framework.handlaggning.model.ImmutableYrkande;
-import se.fk.rimfrost.framework.handlaggning.model.ProduceratResultat;
+import se.fk.rimfrost.framework.handlaggning.model.RollIYrkande;
+import se.fk.rimfrost.framework.handlaggning.model.SakfragaStallningstagandeContainer;
 
 @ApplicationScoped
 public class WorkflowServiceImpl implements WorkflowService
@@ -60,18 +63,18 @@ public class WorkflowServiceImpl implements WorkflowService
    @ConfigProperty(name = "rimfrost.yrkande.default.yrkande-status.id")
    String yrkandeStatusId;
 
-   @ConfigProperty(name = "rimfrost.producerat-resultat.default.yrkande-status.id")
-   String produceratResultatStatusId;
+   @ConfigProperty(name = "rimfrost.handlaggning.default.handlaggning-id-typ")
+   String handlaggningIdTyp;
 
    @Override
    public YrkandeCreateResponse createYrkande(YrkandeCreateRequest request)
    {
       var handlaggningUpdate = createHandlaggningUpdate(request);
-      UUID handlaggningId = handlaggningUpdate.id();
+      UUID handlaggningId = handlaggningUpdate.handlaggning().id();
 
-      var erbjudandeTopic = getErbjudandeTopic(request.erbjudandeId());
+      var erbjudandeTopic = getErbjudandeTopic(request.ingangtypId());
 
-      storeHandlaggningReplyTopic(handlaggningUpdate.id(), request.replyTo());
+      storeHandlaggningReplyTopic(handlaggningId, request.replyTo());
 
       try
       {
@@ -88,7 +91,7 @@ public class WorkflowServiceImpl implements WorkflowService
 
       try
       {
-         startHandlaggningProcess(erbjudandeTopic, handlaggningUpdate.id());
+         startHandlaggningProcess(erbjudandeTopic, handlaggningId);
       }
       catch (HandlaggningProcessStartException e)
       {
@@ -96,7 +99,7 @@ public class WorkflowServiceImpl implements WorkflowService
       }
 
       return ImmutableYrkandeCreateResponse.builder()
-            .handlaggning(mapper.toHandlaggningDTO(handlaggningUpdate))
+            .handlaggning(mapper.toHandlaggningDTO(handlaggningUpdate.handlaggning()))
             .build();
    }
 
@@ -107,7 +110,7 @@ public class WorkflowServiceImpl implements WorkflowService
 
       storeHandlaggningReplyTopic(handlaggningId, replyTo);
 
-      var erbjudandeTopic = getErbjudandeTopic(handlaggning.yrkande().erbjudandeId());
+      var erbjudandeTopic = getErbjudandeTopic(handlaggning.yrkande().ingangtypId());
 
       startHandlaggningProcess(erbjudandeTopic, handlaggningId);
 
@@ -156,43 +159,56 @@ public class WorkflowServiceImpl implements WorkflowService
       tryDeleteHandlaggningReplyTopic(response.handlaggningId());
    }
 
-   @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "False positive for processInstansId and uppgift params that allow null")
+   @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "False positive for handlaggningIdVarde and uppgift params that allow null")
    private HandlaggningUpdate createHandlaggningUpdate(YrkandeCreateRequest request)
    {
+      var yrkandeId = UUID.randomUUID();
+
       var yrkande = ImmutableYrkande.builder()
-            .id(UUID.randomUUID())
+            .id(yrkandeId)
             .version(1)
-            .erbjudandeId(request.erbjudandeId())
+            .ingangtypId(request.ingangtypId())
             .yrkandeDatum(OffsetDateTime.now())
             .yrkandeStatus(yrkandeStatusId)
             .yrkandeFrom(request.yrkandeFrom())
             .yrkandeTom(request.yrkandeTom())
             .avsikt(request.avsiktsId())
-            .individYrkandeRoller(request.individYrkandeRoller().stream().map(mapper::toIndividYrkandeRoll).toList())
-            .produceradeResultat(request.produceradeResultat().stream().map(this::createProduceratResultat).toList())
+            .rollerIYrkande(request.rollerIYrkande().stream().map(r -> createRollIYrkande(r, yrkandeId)).toList())
+            .sakfragorStallningstaganden(
+                  request.sakfragorStallningstaganden().stream().map(this::createSakfragaStallningstagande).toList())
             .build();
 
-      return ImmutableHandlaggningUpdate.builder()
+      var handlaggning = ImmutableHandlaggning.builder()
             .id(UUID.randomUUID())
             .version(1)
             .yrkande(yrkande)
-            .processInstansId(null)
+            .handlaggningIdTyp(handlaggningIdTyp)
+            .handlaggningIdVarde(null)
             .skapadTS(OffsetDateTime.now())
             .handlaggningspecifikationId(request.handlaggningspecifikationId())
+            .build();
+
+      return ImmutableHandlaggningUpdate.builder()
+            .handlaggning(handlaggning)
             .uppgift(null)
-            .underlag(List.of())
             .build();
    }
 
-   private ProduceratResultat createProduceratResultat(ProduceratResultatCreateRequest request)
+   private RollIYrkande createRollIYrkande(RollIYrkandeCreateRequest request, UUID yrkandeId)
    {
-      return ImmutableProduceratResultat.builder()
+      return ImmutableRollIYrkande.builder()
             .id(UUID.randomUUID())
-            .version(1)
-            .resultatFrom(request.franOchMed())
-            .resultatTom(request.tillOchMed())
-            .yrkandeStatus(produceratResultatStatusId)
-            .typ(request.typ())
+            .individ(mapper.toIdtyp(request.individ()))
+            .yrkandeRollId(request.yrkandeRollId())
+            .avserYrkande(yrkandeId)
+            .build();
+   }
+
+   private SakfragaStallningstagandeContainer createSakfragaStallningstagande(SakfragaStallningstagandeCreateRequest request)
+   {
+      return ImmutableSakfragaStallningstagandeContainer.builder()
+            .id(UUID.randomUUID())
+            .objektTypId(request.objektTypId())
             .data(request.data())
             .build();
    }

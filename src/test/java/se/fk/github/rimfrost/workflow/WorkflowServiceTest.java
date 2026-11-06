@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static se.fk.github.rimfrost.workflow.WorkflowTestData.createHandlaggningResponseDTO;
 import static se.fk.github.rimfrost.workflow.WorkflowTestData.createPostYrkandeRequest;
@@ -66,8 +67,8 @@ public class WorkflowServiceTest extends WorkflowTestBase
    @ConfigProperty(name = "rimfrost.yrkande.default.yrkande-status.id")
    String yrkandeStatusId;
 
-   @ConfigProperty(name = "rimfrost.producerat-resultat.default.yrkande-status.id")
-   String produceratResultatStatusId;
+   @ConfigProperty(name = "rimfrost.handlaggning.default.handlaggning-id-typ")
+   String handlaggningIdTyp;
 
    @Test
    @DisplayName("Erbjudande-topic-fel ger ErbjudandeTopicReadException vid skapande av yrkande")
@@ -141,7 +142,8 @@ public class WorkflowServiceTest extends WorkflowTestBase
 
       assertNotNull(handlaggning.id());
       assertEquals(1, handlaggning.version());
-      assertNull(handlaggning.processinstansId());
+      assertEquals(handlaggningIdTyp, handlaggning.handlaggningIdTyp());
+      assertNull(handlaggning.handlaggningIdVarde());
       assertEquals(request.handlaggningspecifikationId(), handlaggning.handlaggningspecifikationId());
       assertNotNull(handlaggning.skapadTS());
       assertNull(handlaggning.avslutadTS());
@@ -153,33 +155,30 @@ public class WorkflowServiceTest extends WorkflowTestBase
       var yrkande = handlaggning.yrkande();
       assertNotNull(yrkande.id());
       assertEquals(1, yrkande.version());
-      assertEquals(request.erbjudandeId(), yrkande.erbjudandeId());
+      assertEquals(request.ingangtypId(), yrkande.ingangtypId());
       assertNotNull(yrkande.yrkandedatum());
       assertNotNull(yrkande.yrkandeFrom());
       assertNotNull(yrkande.yrkandeTom());
       assertEquals(yrkandeStatusId, yrkande.yrkandestatus());
       assertEquals(request.avsiktsId(), yrkande.avsikt());
-      assertNull(yrkande.beslut());
-      assertEquals(1, yrkande.individYrkandeRoll().size());
-      assertEquals(1, yrkande.produceradeResultat().size());
+      assertTrue(yrkande.beslut().isEmpty());
+      assertEquals(1, yrkande.rollerIYrkande().size());
+      assertEquals(1, yrkande.sakfragorStallningstaganden().size());
 
-      var individYrkandeRoll = yrkande.individYrkandeRoll().getFirst();
-      var expectedIndividYrkandeRoll = request.individYrkandeRoller().getFirst();
-      assertNotNull(individYrkandeRoll.individ());
-      assertEquals(expectedIndividYrkandeRoll.individ().typId(), individYrkandeRoll.individ().typId());
-      assertEquals(expectedIndividYrkandeRoll.individ().varde(), individYrkandeRoll.individ().varde());
-      assertEquals(expectedIndividYrkandeRoll.yrkandeRollId(), individYrkandeRoll.yrkandeRollId());
+      var rollIYrkande = yrkande.rollerIYrkande().getFirst();
+      var expectedRollIYrkande = request.rollerIYrkande().getFirst();
+      assertNotNull(rollIYrkande.id());
+      assertNotNull(rollIYrkande.individ());
+      assertEquals(expectedRollIYrkande.individ().typId(), rollIYrkande.individ().typId());
+      assertEquals(expectedRollIYrkande.individ().varde(), rollIYrkande.individ().varde());
+      assertEquals(expectedRollIYrkande.yrkandeRollId(), rollIYrkande.yrkandeRollId());
+      assertEquals(yrkande.id(), rollIYrkande.avserYrkande());
 
-      var produceratResultat = yrkande.produceradeResultat().getFirst();
-      var produceratResultatRequest = request.produceradeResultat().getFirst();
-      assertNotNull(produceratResultat.id());
-      assertEquals(1, produceratResultat.version());
-      assertEquals(produceratResultatRequest.franOchMed(), produceratResultat.franOchMed());
-      assertEquals(produceratResultatRequest.tillOchMed(), produceratResultat.tillOchMed());
-      assertEquals(produceratResultatStatusId, produceratResultat.yrkandestatus());
-      assertNull(produceratResultat.avslagsanledning());
-      assertEquals(produceratResultatRequest.typ(), produceratResultat.typ());
-      assertEquals(produceratResultatRequest.data(), produceratResultatRequest.data());
+      var sakfragaStallningstagande = yrkande.sakfragorStallningstaganden().getFirst();
+      var sakfragaStallningstagandeRequest = request.sakfragorStallningstaganden().getFirst();
+      assertNotNull(sakfragaStallningstagande.id());
+      assertEquals(sakfragaStallningstagandeRequest.objektTypId(), sakfragaStallningstagande.objektTypId());
+      assertEquals(sakfragaStallningstagandeRequest.data(), sakfragaStallningstagande.data());
    }
 
    @Test
