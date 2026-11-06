@@ -1,11 +1,13 @@
 package se.fk.github.rimfrost.workflow.integration;
 
+import io.smallrye.reactive.messaging.MutinyEmitter;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.eclipse.microprofile.reactive.messaging.Emitter;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import se.fk.rimfrost.*;
@@ -14,8 +16,11 @@ import se.fk.rimfrost.*;
 public class KafkaProducer
 {
 
+   @ConfigProperty(name = "rimfrost.workflow.publish-timeout", defaultValue = "10s")
+   Duration publishTimeout;
+
    @Channel("handlaggning-requests")
-   Emitter<HandlaggningRequestMessagePayload> emitter;
+   MutinyEmitter<HandlaggningRequestMessagePayload> emitter;
 
    public void sendRequestMessage(String topic, UUID handlaggningId)
    {
@@ -36,11 +41,11 @@ public class KafkaProducer
             .build();
       var message = Message.of(payload).addMetadata(metadata);
 
-      emitter.send(message);
+      send(emitter, message);
    }
 
    @Channel("handlaggning-done")
-   Emitter<HandlaggningDoneMessage> handlaggningDoneMessageEmitter;
+   MutinyEmitter<HandlaggningDoneMessage> handlaggningDoneMessageEmitter;
 
    public void sendHandlaggningDone(UUID handlaggningId, String topic)
    {
@@ -52,6 +57,18 @@ public class KafkaProducer
             .build();
       var message = Message.of(payload).addMetadata(metadata);
 
-      handlaggningDoneMessageEmitter.send(message);
+      send(handlaggningDoneMessageEmitter, message);
+   }
+
+   private <T> void send(MutinyEmitter<T> emitter, Message<T> message)
+   {
+      try
+      {
+         emitter.sendMessage(message).await().atMost(publishTimeout);
+      }
+      catch (RuntimeException e)
+      {
+         throw new KafkaPublishException(e);
+      }
    }
 }
