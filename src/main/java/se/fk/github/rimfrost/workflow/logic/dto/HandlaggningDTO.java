@@ -14,8 +14,10 @@ public interface HandlaggningDTO
 
    Integer version();
 
+   String handlaggningIdTyp();
+
    @Nullable
-   UUID processinstansId();
+   String handlaggningIdVarde();
 
    UUID handlaggningspecifikationId();
 
