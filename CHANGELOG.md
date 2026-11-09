@@ -2,6 +2,12 @@
 
 Changelog of rimfrost-service-workflow.
 
+## 0.2.6 (2026-11-09)
+
+### Bug Fixes
+
+-  vänta på kvittens från Kafka för processtart och avslutningsmeddelanden (FKPOC-1320) ([e6eb7](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/e6eb78f7159f072) julolsso)  
+
 ## 0.2.5 (2026-11-09)
 
 ### Bug Fixes
