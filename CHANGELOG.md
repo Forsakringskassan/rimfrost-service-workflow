@@ -2,6 +2,23 @@
 
 Changelog of rimfrost-service-workflow.
 
+## 0.2.5 (2026-11-09)
+
+### Bug Fixes
+
+-  update to updated ersattning object ([9672d](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/9672d5da527ae02) Nils Elveros)  
+-  update to use new object model ([b804b](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/b804baa5df4e9f9) Nils Elveros)  
+-  **deps**  update dependency se.fk.rimfrost.framework.erbjudande.topic:rimfrost-framework-erbjudande-topic-adapter to v0.0.3 ([842a9](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/842a9b26d231c46) renovate[bot])  
+-  **deps**  update dependency se.fk.rimfrost:rimfrost-process-asyncapi to v1.2.4 ([071ad](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/071add11ce747de) renovate[bot])  
+
+### Dependency updates
+
+- update forsakringskassan/.github digest to cbc0db8 ([e7f4e](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/e7f4ebd316910e6) renovate[bot])  
+- update forsakringskassan/.github digest to 625efb1 ([6ccc6](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/6ccc6a1af714c64) renovate[bot])  
+- update forsakringskassan/.github digest to cbd74f1 ([e4f98](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/e4f980a7843df5a) renovate[bot])  
+- update forsakringskassan/.github digest to bfb01f7 ([27d91](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/27d91a6da080e5d) renovate[bot])  
+## rimfrost-1_2 (2026-09-22)
+
 ## 0.2.4 (2026-09-22)
 
 ### Bug Fixes
