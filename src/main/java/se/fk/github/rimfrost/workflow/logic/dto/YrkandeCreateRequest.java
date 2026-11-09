@@ -10,7 +10,7 @@ import org.immutables.value.Value;
 public interface YrkandeCreateRequest
 {
 
-   String erbjudandeId();
+   String ingangtypId();
 
    OffsetDateTime yrkandeFrom();
 
@@ -22,8 +22,8 @@ public interface YrkandeCreateRequest
 
    String replyTo();
 
-   List<IndividYrkandeRollDTO> individYrkandeRoller();
+   List<RollIYrkandeCreateRequest> rollerIYrkande();
 
-   List<ProduceratResultatCreateRequest> produceradeResultat();
+   List<SakfragaStallningstagandeCreateRequest> sakfragorStallningstaganden();
 
 }

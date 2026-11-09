@@ -18,5 +18,5 @@ public interface BeslutsradDTO
 
    String avslutsTyp();
 
-   List<ProduceratResultatRefDTO> produceratResultatRefs();
+   List<SakfragaStallningstagandeRefDTO> sakfragorStallningstaganden();
 }

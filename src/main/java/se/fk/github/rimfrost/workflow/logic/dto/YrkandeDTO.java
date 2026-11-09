@@ -4,7 +4,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import jakarta.annotation.Nullable;
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -12,7 +11,7 @@ public interface YrkandeDTO
 {
    UUID id();
 
-   String erbjudandeId();
+   String ingangtypId();
 
    Integer version();
 
@@ -26,17 +25,20 @@ public interface YrkandeDTO
 
    String avsikt();
 
-   @Nullable
-   BeslutDTO beslut();
-
    @Value.Default
-   default List<IndividYrkandeRollDTO> individYrkandeRoll()
+   default List<BeslutDTO> beslut()
    {
       return List.of();
    }
 
    @Value.Default
-   default List<ProduceratResultatDTO> produceradeResultat()
+   default List<RollIYrkandeDTO> rollerIYrkande()
+   {
+      return List.of();
+   }
+
+   @Value.Default
+   default List<SakfragaStallningstagandeDTO> sakfragorStallningstaganden()
    {
       return List.of();
    }
