@@ -2,6 +2,13 @@
 
 Changelog of rimfrost-service-workflow.
 
+## 0.2.7 (2026-11-19)
+
+### Bug Fixes
+
+-  bump rimfrost-framework-handlaggning-adapter to 1.2.9 ([67e2b](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/67e2bdd62e58042) Ulf Slunga)  
+-  **deps**  update dependency se.fk.rimfrost.framework.erbjudande.topic:rimfrost-framework-erbjudande-topic-adapter to v0.0.4 ([e9177](https://github.com/Forsakringskassan/rimfrost-service-workflow/commit/e91770ef9ab36a9) renovate[bot])  
+
 ## 0.2.6 (2026-11-09)
 
 ### Bug Fixes
